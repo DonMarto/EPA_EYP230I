@@ -1,5 +1,7 @@
 # EPA_EYP230I
-Repository for Final Project for EYP230I, in accordance to the EPA Fuel Economy Database
+Repository for Final Project for EYP230I, in accordance to the EPA Fuel Economy Database.
+
+Para efectos del avance, se realiza un análisis exploratorio inicial de los datos, revisión de la fuente de datos y los reportes anuales de la EPA, con el fin de plantear una pregunta de estudio, y un modelo de regresión que la busque responder.
 
 
 Link a word:
