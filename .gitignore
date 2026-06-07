@@ -1,0 +1,20 @@
+# Carpeta de trabajo local (no subir al repositorio)
+Local/
+
+# Jupyter checkpoints
+**/.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# OS
+.DS_Store
+Thumbs.db
