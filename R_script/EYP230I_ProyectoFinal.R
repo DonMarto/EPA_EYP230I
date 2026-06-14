@@ -26,11 +26,14 @@ M0 <- lm(comb08 ~ displ*year_c +
          )
 
 # Modelo con cilindrada como categorías (displ_grupo: 0-2L,2-3L,3-4L,4-5L,5-6L,6-7L,7L+),
-# comb08 = b0 + b1*displ + b2*year + b3*(displ:year) +
-# b4*displ_2-3L + b5*displ_3-4L + b6*displ_4-5L + b7*displ_5-6L + b8*displ_6-7L + b9*displ_7L+ +
-# b10*gears + b11*tCharger + b12*sCharger + b13*startStop + b14*FWD + b15*RWD + b16*Manual + e
-M1 <- lm(comb08 ~ displ*year_c +
-           displ_grupo + gears + tCharger + sCharger + startStop +
+# interactuando cada categoría con el año (sin displ continuo, para evitar
+# colinealidad entre displ y displ_grupo):
+# comb08 = b0 + b1*displ_2-3L + b2*displ_3-4L + b3*displ_4-5L + b4*displ_5-6L +
+# b5*displ_6-7L + b6*displ_7L+ + b7*year +
+# b8*(displ_2-3L:year) + b9*(displ_3-4L:year) + b10*(displ_4-5L:year) +
+# b11*(displ_5-6L:year) + b12*(displ_6-7L:year) + b13*(displ_7L+:year) +
+# b14*gears + b15*tCharger + b16*sCharger + b17*startStop + b18*FWD + b19*RWD + b20*Manual + e
+M1 <- lm(comb08 ~ displ_grupo*year_c + gears + tCharger + sCharger + startStop +
            drive_FWD + drive_RWD + transType_Manual,
          data = df_filtered
          )
