@@ -86,7 +86,7 @@ modelsummary(
 # comb08 = b0 + b1*displ + b2*year + b3*(displ:year) +
 # b4*gears + b5*tCharger + b6*sCharger + b7*startStop + b8*FWD + b9*RWD +
 # b10*Manual + e
-M0 <- lm(comb08 ~ displ*year_c +
+M0 <- lm(comb08 ~ displ + displ:year_c +
            gears + tCharger + sCharger + startStop +
            drive_FWD + drive_RWD + transType_Manual,
          data = df_filtered
@@ -130,22 +130,18 @@ anova(M0, M1)   # F parcial, M0 vs M1 (anidados)
 ### VIF ###
 library(car)
 # M0
-vif_values_m0 <- vif(M0)
+vif_values <- vif(M0)
 print(vif_values)
 
 # M1
-vif_values_m1 <- vif(M1)
+vif_values <- vif(M1)
 print(vif_values)
 
 # M2
-vif_values_m2 <- vif(M2)
+vif_values <- vif(M2)
 print(vif_values)
 
-modelsummary(
-  list("VIF M0" = vif_values_m0, "VIF M1" = vif_values_m1, "VIF M2" = vif_values_m2),
-  output = "latex",
-  stars = TRUE)
-
+library(modelsummary)
 
 modelsummary(
   list("M0" = M0, "M1" = M1, "M2" = M2),
@@ -177,3 +173,9 @@ c(
   rmse(M1),
   rmse(M2)
 )
+
+library(effectsize)
+
+par(mfrow = c(2,2))
+plot(M0)
+standardize_parameters(M0, method = "basic")
