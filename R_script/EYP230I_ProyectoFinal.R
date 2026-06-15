@@ -19,11 +19,11 @@ df_filtered$year_c <- df_filtered$year - mean(df_filtered$year)
 # comb08 = b0 + b1*displ + b2*year + b3*(displ:year) +
 # b4*gears + b5*tCharger + b6*sCharger + b7*startStop + b8*FWD + b9*RWD +
 # b10*Manual + e
-M0 <- lm(comb08 ~ displ*year_c +
+M0 <- lm(comb08 ~ displ + year_c + displ*year_c +
            gears + tCharger + sCharger + startStop +
            drive_FWD + drive_RWD + transType_Manual,
          data = df_filtered
-         )
+)
 
 # Modelo con cilindrada como categorías (displ_grupo: 0-2L,2-3L,3-4L,4-5L,5-6L,6-7L,7L+),
 # interactuando cada categoría con el año (sin displ continuo, para evitar
@@ -33,19 +33,19 @@ M0 <- lm(comb08 ~ displ*year_c +
 # b8*(displ_2-3L:year) + b9*(displ_3-4L:year) + b10*(displ_4-5L:year) +
 # b11*(displ_5-6L:year) + b12*(displ_6-7L:year) + b13*(displ_7L+:year) +
 # b14*gears + b15*tCharger + b16*sCharger + b17*startStop + b18*FWD + b19*RWD + b20*Manual + e
-M1 <- lm(comb08 ~ displ_grupo*year_c + gears + tCharger + sCharger + startStop +
+M1 <- lm(comb08 ~ displ_grupo + displ_grupo*year_c + year_c + gears + tCharger + sCharger + startStop +
            drive_FWD + drive_RWD + transType_Manual,
          data = df_filtered
-         )
+)
 
 # Modelo con volumen por cilindro, sin cilindrada por categoría,
 # comb08 = b0 + b1*displ_per_cyl + b2*year + b3*(displ_per_cyl:year) +
 # b4*startStop + b5*gears + b6*tCharger + b7*sCharger + b8*RWD + b9*FWD + b10*Manual + e
-M2 <- lm(comb08 ~ displ_per_cyl*year_c +
+M2 <- lm(comb08 ~ displ_per_cyl + year_c + displ_per_cyl*year_c +
            startStop + gears + tCharger + sCharger + drive_RWD + drive_FWD +
            transType_Manual,
          data = df_filtered
-         )
+)
 
 
 #
@@ -61,18 +61,119 @@ c(R2adj_M0 = summary(M0)$adj.r.squared,
 
 anova(M0, M1)   # F parcial, M0 vs M1 (anidados)
 
+### VIF ###
+library(car)
+# M0
+vif_values <- vif(M0)
+print(vif_values)
+
+# M1
+vif_values <- vif(M1)
+print(vif_values)
+
+# M2
+vif_values <- vif(M2)
+print(vif_values)
+
+modelsummary(
+  list("M0" = M0),
+  output = "latex",
+  stars = TRUE,
+  gof_map = c("r.squared", "adj.r.squared", "AIC", "BIC", "nobs")
+)
+
+# Modelo base,
+# comb08 = b0 + b1*displ + b2*year + b3*(displ:year) +
+# b4*gears + b5*tCharger + b6*sCharger + b7*startStop + b8*FWD + b9*RWD +
+# b10*Manual + e
+M0 <- lm(comb08 ~ displ*year_c +
+           gears + tCharger + sCharger + startStop +
+           drive_FWD + drive_RWD + transType_Manual,
+         data = df_filtered
+)
+
+# Modelo con cilindrada como categorías (displ_grupo: 0-2L,2-3L,3-4L,4-5L,5-6L,6-7L,7L+),
+# interactuando cada categoría con el año (sin displ continuo, para evitar
+# colinealidad entre displ y displ_grupo):
+# comb08 = b0 + b1*displ_2-3L + b2*displ_3-4L + b3*displ_4-5L + b4*displ_5-6L +
+# b5*displ_6-7L + b6*displ_7L+ + b7*year +
+# b8*(displ_2-3L:year) + b9*(displ_3-4L:year) + b10*(displ_4-5L:year) +
+# b11*(displ_5-6L:year) + b12*(displ_6-7L:year) + b13*(displ_7L+:year) +
+# b14*gears + b15*tCharger + b16*sCharger + b17*startStop + b18*FWD + b19*RWD + b20*Manual + e
+M1 <- lm(comb08 ~ displ_grupo*year_c + gears + tCharger + sCharger + startStop +
+           drive_FWD + drive_RWD + transType_Manual,
+         data = df_filtered
+)
+
+# Modelo con volumen por cilindro, sin cilindrada por categoría,
+# comb08 = b0 + b1*displ_per_cyl + b2*year + b3*(displ_per_cyl:year) +
+# b4*startStop + b5*gears + b6*tCharger + b7*sCharger + b8*RWD + b9*FWD + b10*Manual + e
+M2 <- lm(comb08 ~ displ_per_cyl*year_c +
+           startStop + gears + tCharger + sCharger + drive_RWD + drive_FWD +
+           transType_Manual,
+         data = df_filtered
+)
+
+#
+summary(M0)
+summary(M1)
+summary(M2)
+
+AIC(M0, M1, M2)
+BIC(M0, M1, M2)
+c(R2adj_M0 = summary(M0)$adj.r.squared,
+  R2adj_M1 = summary(M1)$adj.r.squared,
+  R2adj_M2 = summary(M2)$adj.r.squared)
+
+anova(M0, M1)   # F parcial, M0 vs M1 (anidados)
+
+### VIF ###
+library(car)
+# M0
+vif_values_m0 <- vif(M0)
+print(vif_values)
+
+# M1
+vif_values_m1 <- vif(M1)
+print(vif_values)
+
+# M2
+vif_values_m2 <- vif(M2)
+print(vif_values)
+
+modelsummary(
+  list("VIF M0" = vif_values_m0, "VIF M1" = vif_values_m1, "VIF M2" = vif_values_m2),
+  output = "latex",
+  stars = TRUE)
 
 
+modelsummary(
+  list("M0" = M0, "M1" = M1, "M2" = M2),
+  output = "latex",
+  stars = TRUE,
+  gof_map = c("r.squared", "adj.r.squared", "AIC", "BIC", "nobs")
+)
 
 
+c(
+  AIC(M0), 
+  AIC(M1),
+  AIC(M2)
+)
 
+#BIC for all cases
+c(
+  BIC(M0),
+  BIC(M1),
+  BIC(M2)
+)
 
+rmse <- function(model) {
+  sqrt(mean(residuals(model)^2))
+}
 
-
-
-
-
-
-
-
-
+c(
+  rmse(M0),
+  rmse(M1),
+  rmse(M2)
+)
